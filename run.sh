@@ -2,18 +2,18 @@
 
 "${STEAMCMD_DIR}/steamcmd.sh" +runscript "${STEAMCMD_SCRIPT}"
 
-cd "${STEAMCMD_INSTALL_DIR}"
+cd "${INSTALL_DIR}"
 
-EXECUTABLE="${STEAMCMD_INSTALL_DIR}/${SRCDS_RUN}"
+EXECUTABLE="${INSTALL_DIR}/${SRCDS_RUN}"
 
-if [ "${USE_DOTENV}" ] && [ "${USE_DOTENV}" -ne "0" ] && [ -f "${STEAMCMD_INSTALL_DIR}/.env" ]; then
-    eval "$(shdotenv --overload --grep "^SRCDS" --env "${STEAMCMD_INSTALL_DIR}/.env")"
+if [ "${USE_DOTENV:-0}" -ne "0" ] && [ -f "${INSTALL_DIR}/.env" ]; then
+    eval "$(shdotenv --overload --grep "^SRCDS" --env "${INSTALL_DIR}/.env")"
 fi
 
-if [ "${SRCDS_SECURED}" ] && [ "${SRCDS_SECURED}" -ne "0" ]; then
-    SRCDS_SECURITY_FLAG="-secured"
+if [ "${SRCDS_SECURED:-1}" -ne "0" ]; then
+    SRCDS_SECURITY_FLAG="-secure"
 else
-    SRCDS_SECURITY_FLAG="-insecured"
+    SRCDS_SECURITY_FLAG="-insecure"
 fi
 
 exec "${EXECUTABLE}" \

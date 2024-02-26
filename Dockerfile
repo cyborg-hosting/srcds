@@ -1,8 +1,7 @@
-FROM cyborghosting/steamcmd
+FROM cyborghosting/steamcmd AS packages
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN set -o errexit && \
-    set -o xtrace && \
+RUN set -eux && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install --assume-yes --no-install-recommends --no-install-suggests \
@@ -15,9 +14,21 @@ RUN set -o errexit && \
         libcurl3-gnutls:i386=7.88.1-10+deb12u5 && \
     rm -rf /var/lib/apt/lists/*
 
+FROM packages AS test
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN set -eux; \
+    apt-get update; \
+    if apt-get dist-upgrade --dry-run --quiet="2" | grep --quiet --regexp="^Inst"; then \
+        exit 1; \
+    fi; \
+    rm -rf /var/lib/apt/lists/*
+
+FROM packages
+
 ENV STEAMCMD_APP_ID=
 ENV STEAMCMD_APP_BETA=
-ENV STEAMCMD_INSTALL_DIR=/srcds
+ENV INSTALL_DIR=/srcds
 ENV STEAMCMD_SCRIPT=/tmp/steamcmd_script.txt
 
 ENV SRCDS_RUN=srcds_run
