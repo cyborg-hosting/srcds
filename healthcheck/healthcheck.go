@@ -8,9 +8,13 @@ import (
 )
 
 func main() {
-	host := "localhost"
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
 	port := getEnv("SRCDS_PORT", "27015")
-	addr := host + ":" + port
+	addr := hostname + ":" + port
 
 	client, err := a2s.NewClient(addr)
 	if err != nil {
