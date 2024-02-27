@@ -1,30 +1,50 @@
 package main
 
 import (
+	"bytes"
 	"log"
 	"os"
+	"path/filepath"
+	"strconv"
 
 	"github.com/rumblefrog/go-a2s"
+	"golang.org/x/sys/unix"
 )
 
 func main() {
+	port, ok := os.LookupEnv("SRCDS_PORT")
+	if !ok {
+		log.Print("environment variable 'SRCDS_PORT' not specified")
+		os.Exit(0)
+	}
+
+	path, ok := os.LookupEnv("SRCDS_PID_FILE")
+	if !ok {
+		log.Print("environment variable 'SRCDS_PID_FILE' not specified")
+		os.Exit(0)
+	}
+
+	pid, _ := readPIDFile(path)
+	if pid == 0 {
+		log.Print("srcds not running")
+		os.Exit(0)
+	}
+
 	hostname, err := os.Hostname()
 	if err != nil {
-		log.Print(err)
-		os.Exit(1)
+		log.Print("failed to resolve hostname:", err.Error())
+		os.Exit(0)
 	}
-	port := getEnv("SRCDS_PORT", "27015")
-	addr := hostname + ":" + port
 
-	client, err := a2s.NewClient(addr)
+	client, err := a2s.NewClient(hostname + ":" + port)
 	if err != nil {
-		log.Print(err)
-		os.Exit(1)
+		log.Print("failed to create udp connection:", err.Error())
+		os.Exit(0)
 	}
 
 	info, err := client.QueryInfo()
 	if err != nil {
-		log.Print(err)
+		log.Print("failed to query:", err.Error())
 		os.Exit(1)
 	}
 
@@ -32,10 +52,29 @@ func main() {
 	os.Exit(0)
 }
 
-func getEnv(key string, def string) string {
-	value, ok := os.LookupEnv(key)
-	if !ok {
-		return def
+func readPIDFile(path string) (pid int, err error) {
+	pidByte, err := os.ReadFile(path)
+	if err != nil {
+		return 0, err
 	}
-	return value
+	pid, err = strconv.Atoi(string(bytes.TrimSpace(pidByte)))
+	if err != nil {
+		return 0, nil
+	}
+	if pid != 0 && alivePID(pid) {
+		return pid, nil
+	}
+	return 0, nil
+}
+
+func alivePID(pid int) bool {
+	if pid < 1 {
+		return false
+	}
+	err := unix.Kill(pid, 0)
+	if err == nil || err == unix.EPERM {
+		return true
+	}
+	_, err = os.Stat(filepath.Join("/proc", strconv.Itoa(pid)))
+	return err == nil
 }

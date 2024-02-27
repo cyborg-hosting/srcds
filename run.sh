@@ -2,7 +2,7 @@
 
 "${STEAMCMD_DIR}/steamcmd.sh" +runscript "${STEAMCMD_SCRIPT}"
 
-cd "${INSTALL_DIR}"
+cd "${INSTALL_DIR}" || exit 1
 
 EXECUTABLE="${INSTALL_DIR}/${SRCDS_RUN}"
 

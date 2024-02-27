@@ -48,6 +48,7 @@ ENV STEAMCMD_SCRIPT=/dev/shm/steamcmd_script.txt
 
 ENV SRCDS_RUN=srcds_run
 ENV SRCDS_SECURED=1
+ENV SRCDS_PORT=27015
 ENV SRCDS_PID_FILE=/dev/shm/srcds.pid
 
 ADD --chown=root:root --chmod=755 https://github.com/ko1nksm/shdotenv/releases/latest/download/shdotenv /usr/local/bin/shdotenv
@@ -56,4 +57,4 @@ ADD --chown=root:root --chmod=755 run.sh /run.sh
 CMD [ "/run.sh" ]
 
 COPY --chown=root:root --chmod=755 --from=healthcheck /healthcheck /healthcheck
-HEALTHCHECK --interval=10s --timeout=10s --start-period=120s --start-interval=5s --retries=6 CMD [ "/healthcheck" ]
+HEALTHCHECK --interval=10s --retries=6 CMD [ "/healthcheck" ]
