@@ -21,6 +21,7 @@ exec "${EXECUTABLE}" \
     -autoupdate \
     -steam_dir "${STEAMCMD_DIR}" \
     -steamcmd_script "${STEAMCMD_SCRIPT}" \
+    -pidfile "${SRCDS_PID_FILE}" \
     -usercon \
     ${SRCDS_GAME:+-game "${SRCDS_GAME}"} \
     ${SRCDS_IP:+-ip "${SRCDS_IP}"} \

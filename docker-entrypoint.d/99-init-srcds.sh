@@ -1,7 +1,6 @@
 #!/bin/sh
 
-set -o errexit
-set -o nounset
+set -eu
 
 if [ -f "${INSTALL_DIR}" ]; then
 	>&2 echo "\"${INSTALL_DIR}\" is not directory"

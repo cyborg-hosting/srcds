@@ -44,10 +44,11 @@ FROM dependency
 ENV STEAMCMD_APP_ID=
 ENV STEAMCMD_APP_BETA=
 ENV INSTALL_DIR=/srcds
-ENV STEAMCMD_SCRIPT=/tmp/steamcmd_script.txt
+ENV STEAMCMD_SCRIPT=/dev/shm/steamcmd_script.txt
 
 ENV SRCDS_RUN=srcds_run
 ENV SRCDS_SECURED=1
+ENV SRCDS_PID_FILE=/dev/shm/srcds.pid
 
 ADD --chown=root:root --chmod=755 https://github.com/ko1nksm/shdotenv/releases/latest/download/shdotenv /usr/local/bin/shdotenv
 ADD --chown=root:root --chmod=755 docker-entrypoint.d /docker-entrypoint.d
@@ -55,4 +56,4 @@ ADD --chown=root:root --chmod=755 run.sh /run.sh
 CMD [ "/run.sh" ]
 
 COPY --chown=root:root --chmod=755 --from=healthcheck /healthcheck /healthcheck
-HEALTHCHECK --interval=10s --timeout=10s --start-period=120s --retries=6 CMD [ "/healthcheck" ]
+HEALTHCHECK --interval=10s --timeout=10s --start-period=120s --start-interval=5s --retries=6 CMD [ "/healthcheck" ]
